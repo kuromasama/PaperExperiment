@@ -1,0 +1,1 @@
+recrypt::prelude::Recrypt<Sha256, Ed25519, RandomBytes<rand::rngs::adapter::reseeding::ReseedingRng<rand_chacha::chacha::ChaCha20Core, rand_core::os::OsRng>>>
