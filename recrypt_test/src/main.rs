@@ -62,7 +62,7 @@ fn main() {
 
     // plaintext recovered.
     assert_eq!(pt, decrypted_val);
-
+//--------------------------------------------------------single-hop-------------------------------------------------------------------
     // rk keygen!
     let alice_to_bob_transform_key = recrypt.generate_transform_key(
         &alice_sk,
@@ -83,7 +83,7 @@ fn main() {
 
     // plaintext recovered.
     assert_eq!(pt, decrypted_val_pre);
-//---------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------multi-hop-------------------------------------------------------------------
      // rk keygen!
      let bob_to_charry_transform_key = recrypt.generate_transform_key(
         &bob_sk,
@@ -116,7 +116,7 @@ fn main() {
     // decrypt the transformed value with the target private key and recover the plaintext
     let decrypted_val_pre2 = recrypt.decrypt(transformed2_val, &cherry_sk).unwrap();   
    
-
+//--------------------------------------------------------correctness-------------------------------------------------------------------
     // plaintext recovered.
     assert_eq!(pt, decrypted_val);
 
