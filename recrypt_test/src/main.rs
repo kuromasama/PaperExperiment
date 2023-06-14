@@ -41,6 +41,11 @@ fn main() {
     let (bob_sk, bob_pk) = recrypt.generate_key_pair().unwrap();
     let bob_signing_keypair = recrypt.generate_ed25519_key_pair();
 
+    let (cherry_sk, cherry_pk) = recrypt.generate_key_pair().unwrap();
+    let cherry_signing_keypair = recrypt.generate_ed25519_key_pair();
+
+
+
     // encrypt!
     let encrypted_val = recrypt.encrypt(&pt, &alice_pk, &alice_signing_keypair).unwrap();
     // println!("{:?}", encrypted_val);
@@ -48,6 +53,8 @@ fn main() {
     // encrypt2!
     let encrypted_val_pre = recrypt.encrypt(&pt, &alice_pk, &alice_signing_keypair).unwrap();
     // println!("{:?}", encrypted_val_pre);    
+    let encrypted_val_pre2 = recrypt.encrypt(&pt, &alice_pk, &alice_signing_keypair).unwrap();
+    // println!("{:?}", encrypted_val_pre); 
 
     // decrypt!
     let decrypted_val = recrypt.decrypt(encrypted_val, &alice_sk).unwrap();
@@ -76,11 +83,50 @@ fn main() {
 
     // plaintext recovered.
     assert_eq!(pt, decrypted_val_pre);
+//---------------------------------------------------------------------------------------------------------------------------
+     // rk keygen!
+     let bob_to_charry_transform_key = recrypt.generate_transform_key(
+        &bob_sk,
+        &cherry_pk,
+        &bob_signing_keypair).unwrap();
+
+    println!("rk_alice_bob: {:?}", bob_to_charry_transform_key);      
+
+    // rk keygen set!
+    let alice_to_bob_transform_key = recrypt.generate_transform_key(
+        &alice_sk,
+        &bob_pk,
+        &alice_signing_keypair).unwrap();
+
+     // Transform the plaintext to be alice to the bob!
+    // The data is _not_ decrypted here. Simply transformed!
+    let transformed1_val = recrypt.transform(
+        encrypted_val_pre2,
+        alice_to_bob_transform_key,
+        &alice_signing_keypair).unwrap();
+
+     // Transform the plaintext to be alice to the bob!
+    // The data is _not_ decrypted here. Simply transformed!
+
+    let transformed2_val = recrypt.transform(
+        transformed1_val,
+        bob_to_charry_transform_key,
+        &bob_signing_keypair).unwrap();
+
+    // decrypt the transformed value with the target private key and recover the plaintext
+    let decrypted_val_pre2 = recrypt.decrypt(transformed2_val, &cherry_sk).unwrap();   
+   
+
+    // plaintext recovered.
+    assert_eq!(pt, decrypted_val);
+
+    // plaintext recovered.
+    assert_eq!(decrypted_val_pre2, decrypted_val);
 
     // plaintext recovered.
     assert_eq!(decrypted_val_pre, decrypted_val);
 
-    let keyde = &decrypted_val_pre.bytes()[0..16];
+    let keyde = &decrypted_val_pre2.bytes()[0..16];
     // Create a new block cipher with our keyde
     let cipher = Aes128Ecb::new_from_slices(keyde, &[]).unwrap();
 
